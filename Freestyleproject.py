@@ -5,58 +5,65 @@ import pandas_datareader.data as web
 import datetime
 import csv
 
-def start_date ():
-    start_year = int(input ("Start Year of Quote: "))
-    start_month = int(input ("Start Month of Quote: "))
-    start_day = int(input ("Start Day of Quote: "))
-    start = datetime.datetime(start_year, start_month, start_day)
-
-def end_date ():
-    end_year = int(input ("Ending Year of Quote: "))
-    end_month = int(input ("Ending Month of Quote: "))
-    end_day = int(input ("Ending Day of Quote: "))
-    end = datetime.datetime(end_year, end_month, end_day)
-
-def end_today ():
-    todaytest = str(input("Would you like to end the search today? (Y/N)"))
-    todaytest = todaytest.lower()
-    if todaytest == "y":
-        end = date.today()
-    else:
-        end_date()
 
 def histreturn ():
     start_year = int(input ("Start Year of Quote: "))
     start_month = int(input ("Start Month of Quote: "))
     start_day = int(input ("Start Day of Quote: "))
     start = datetime.datetime(start_year, start_month, start_day)
-    end_year = int(input ("Ending Year of Quote: "))
-    end_month = int(input ("Ending Month of Quote: "))
-    end_day = int(input ("Ending Day of Quote: "))
-    end = datetime.datetime(end_year, end_month, end_day)
+
+    todaytest = str(input("Would you like to end the search today? (Y/N)"))
+    todaytest = todaytest.lower()
+    if todaytest == "y":
+        end = date.today()
+    else:
+        end_year = int(input ("Ending Year of Quote: "))
+        end_month = int(input ("Ending Month of Quote: "))
+        end_day = int(input ("Ending Day of Quote: "))
+        end = datetime.datetime(end_year, end_month, end_day)
 
     lookup = web.DataReader(symbol, 'yahoo', start, end)
 
     print(lookup)
 
-    Specific_data_test = str(input("Would you like to tease out specific data? (Y/N)"))
+    Specific_data_test = str(input("Would you like to save to CSV? (Y/N)"))
     Specific_data_test = Specific_data_test.lower()
 
     if Specific_data_test == "n":
-        print("hokay no data")
+        print("Thank you for your search")
     else:
-        print("""
-Please specify the data you would like to print:
-Open, High, Low, Close, Adj Close, Volume
-            """)
-    quote = lookup.ix[start]
+        other_path = "Single Day Return.csv"
+        with open(other_path, "w") as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=["Date","Open","high","Low","Close","Adj Close","Volume"])
+            writer.writeheader() # uses fieldnames set above
+            for date in lookup:
+                writer.writerow(date)
 
 
-def Div_Split ():
-    start_date()
-    end_today()
+def div_Split ():
+    start_year = int(input ("Start Year of Quote: "))
+    start_month = int(input ("Start Month of Quote: "))
+    start_day = int(input ("Start Day of Quote: "))
+    start = datetime.datetime(start_year, start_month, start_day)
+
+    todaytest = str(input("Would you like to end the search today? (Y/N)"))
+    todaytest = todaytest.lower()
+    if todaytest == "y":
+        end = date.today()
+    else:
+        end_year = int(input ("Ending Year of Quote: "))
+        end_month = int(input ("Ending Month of Quote: "))
+        end_day = int(input ("Ending Day of Quote: "))
+        end = datetime.datetime(end_year, end_month, end_day)
+
     lookup = web.DataReader(symbol, 'yahoo-dividends', start, end)
     print(lookup)
+
+def daily_close ():
+    start = str(date.today() - timedelta(days=15)) #> '2017-07-09'
+    end = str(date.today())
+    lookup = web.DataReader(symbol, 'yahoo', start, end)
+    print (lookup)
 
 # print("""
 # Available Functions:
@@ -70,12 +77,17 @@ def Div_Split ():
 # symbol = str(input("Please enter the stock ticker: "))
 # symbol = symbol.upper()
 
-ActFunction = "single"
+start = []
+end = []
+
+ActFunction = "div"
 symbol = 'AAPL'
 
 if ActFunction == "single":
-    histreturn()
-if ActFunction == "div":
-    Div_Split ()
+    histreturn ()
+elif ActFunction == "div":
+    div_Split ()
+elif ActFunction == "close":
+    daily_close ()
 else:
     print("Done")
